@@ -50,7 +50,7 @@ pub fn field_wtr_headers(
 pub fn field_wtr(
     wtr: &mut Writer<Vec<u8>>,
     treasurespheres: &Vec<Treasuresphere>,
-    loot: &Vec<&str>,
+    loot: &Vec<u32>,
     _relative: &bool,
     player_count: &u32,
 ) -> Result<(), Error> {
@@ -79,7 +79,9 @@ pub fn field_wtr(
                         .get(loot_index)
                         .expect("Item index exceeded bounds of loot in field_wtr().");
                     loot_index += 1;
-                    it
+                    loot::treasuresphere::ITEM_NAMES
+                        .get(&it)
+                        .expect("Item not found in index for ITEM_NAMES in field_wtr().")
                 } else {
                     ""
                 }; // Write nothing i.e. for it_{2..=5}_{3,4}

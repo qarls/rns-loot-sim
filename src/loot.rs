@@ -47,6 +47,7 @@ pub mod treasuresphere {
     use phf::OrderedMap;
     use phf_macros::phf_ordered_map;
 
+    #[derive(Debug, PartialEq, Eq)]
     pub enum Colors {
         Normal, // Reminder that you can find Normal 3 times
         Opal,

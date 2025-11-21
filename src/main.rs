@@ -61,7 +61,7 @@ fn main() -> Result<(), Error> {
 
     for _ in 0..game_count {
         let ts: Vec<Treasuresphere> = generate_ts(&mut seed);
-        let it: Vec<&'static str> = generate_it(&ts, &mut seed, &player_count)?;
+        let it: Vec<u32> = generate_it(&ts, &mut seed, &player_count)?;
         writer::field_wtr(&mut wtr, &ts, &it, &false, &player_count)?;
     }
 
@@ -111,7 +111,7 @@ fn generate_it(
     ts: &Vec<Treasuresphere>,
     mut seed: &mut ChaCha8Rng,
     player_count: &u32,
-) -> Result<Vec<&'static str>, Error> {
+) -> Result<Vec<u32>, Error> {
     let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
     let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?;
 
@@ -159,16 +159,18 @@ fn generate_it(
         }
     }
 
-    let items_found_str: Vec<&'static str> = items_found
-        .iter()
-        .map(|x| {
-            *loot::treasuresphere::ITEM_NAMES
-                .get(x)
-                .expect("Index of item index to names in generate_it() misindexed")
-        })
-        .collect::<Vec<&str>>();
+    return Ok(items_found);
 
-    assert_eq!(loot_sum, items_found_str.len()); // Simply checks if they're same length, should not fail
+    // let items_found_str: Vec<&'static str> = items_found
+    //     .iter()
+    //     .map(|x| {
+    //         *loot::treasuresphere::ITEM_NAMES
+    //             .get(x)
+    //             .expect("Index of item index to names in generate_it() misindexed")
+    //     })
+    //     .collect::<Vec<&str>>();
 
-    return Ok(items_found_str);
+    // assert_eq!(loot_sum, items_found_str.len()); // Simply checks if they're same length, should not fail
+
+    // return Ok(items_found_str);
 }
