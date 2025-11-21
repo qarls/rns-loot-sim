@@ -30,6 +30,10 @@ struct Args {
     /// Use a positive interger (u64) seed for RNG (non-compliant)
     #[arg(short, long)]
     seed: Option<u64>,
+
+    /// Use indices instead of item names (it_[NAME])
+    #[arg(short, long, action)]
+    indices_for_items: Option<u64>,
     // /// Use no headers
     // #[arg(short, long, action)]
     // no_headers: bool,
@@ -104,7 +108,7 @@ pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
 /// - in 4p, items 4_4 [24] and 5_0 [25] next to each other
 #[allow(unused_variables)]
 fn generate_it(
-    treasurespheres: &Vec<Treasuresphere>,
+    ts: &Vec<Treasuresphere>,
     mut seed: &mut ChaCha8Rng,
     player_count: &u32,
 ) -> Result<Vec<&'static str>, Error> {
@@ -113,16 +117,22 @@ fn generate_it(
 
     let mut items_found: Vec<u32> = Vec::with_capacity(loot_sum);
     let mut itempool: Vec<u32> = (0..200).collect();
+    itempool.shuffle(&mut seed);
 
     for t in 0..*TS_COUNT {
-        // Moved internally for testing
-        itempool.shuffle(&mut seed);
+        let ts_t = ts.get(t).expect("Invalid treasuresphere indexed.");
+
+        // Must reshuffle item order every different ts color
+        if t > 0 {
+            match ts.get(t - 1) {
+                Some(val) if val == ts_t => (), // No need to shuffle on consecutive normal ts
+                None | Some(_) => itempool.shuffle(&mut seed),
+            }
+        }
+
         let loot_count = loot_counts
             .get(t)
             .expect("ts indexed loot_counts out of bounds in generate_it()");
-        let ts_t = treasurespheres
-            .get(t)
-            .expect("Invalid treasuresphere indexed.");
         let mut p: usize = 0; // Count through item indices in "Pool" of total itempool
 
         'roll_next_item: for _ in 0..*loot_count {
