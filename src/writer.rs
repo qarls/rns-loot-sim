@@ -37,7 +37,7 @@ pub fn field_wtr_headers(
     } else {
         for t in 0..*TS_COUNT {
             for i in 0..*loot::IT_FOUND_MAX_PER_TS {
-                let it_t_i: String = format!("ts_{}_{}", t, i);
+                let it_t_i: String = format!("it_{}_{}", t, i);
                 wtr.write_field(it_t_i)?;
             }
         }
