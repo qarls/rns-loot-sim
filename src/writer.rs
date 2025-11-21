@@ -75,12 +75,13 @@ pub fn field_wtr(
                     .expect("ts indexing exceeded bounds of loot_counts in field_wtr().");
 
                 let item = if i < *loot_count {
-                    let it = loot
+                    let it = *loot
                         .get(loot_index)
-                        .expect("Item index exceeded bounds of loot in field_wtr().");
+                        .expect("Item index exceeded bounds of loot in field_wtr().")
+                        as usize;
                     loot_index += 1;
                     loot::treasuresphere::ITEM_NAMES
-                        .get(&it)
+                        .index(it)
                         .expect("Item not found in index for ITEM_NAMES in field_wtr().")
                 } else {
                     ""

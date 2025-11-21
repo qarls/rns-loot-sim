@@ -33,7 +33,7 @@ struct Args {
 
     /// Use indices instead of item names (it_[NAME])
     #[arg(short, long, action)]
-    indices_for_items: Option<u64>,
+    indices_for_items: bool,
     // /// Use no headers
     // #[arg(short, long, action)]
     // no_headers: bool,
