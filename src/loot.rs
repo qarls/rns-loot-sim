@@ -175,7 +175,7 @@ pub mod treasuresphere {
 
     pub static NOT_IN_LAST_SPHERES: OrderedMap<u32, u32> = phf_ordered_map! {
         70 => 2, // topaz charm
-        101 | 104 | 108 => 1,// silver coin, butterfly ocarina and blue rose
+        93 | 96 | 100 => 1,// silver coin, butterfly ocarina and blue rose
     };
 
     pub static ITEM_NAMES: OrderedMap<u32, &'static str> = phf_ordered_map! {
