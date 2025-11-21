@@ -1,3 +1,5 @@
+// Module for game constants, hashmaps and helper functions associated with them
+
 /// Treasuresphere Count
 ///
 /// May break if changed from 6 as of right now.
@@ -45,25 +47,97 @@ pub mod treasuresphere {
     use phf::OrderedMap;
     use phf_macros::phf_ordered_map;
 
-    // pub static IS_OPAL: Map<usize, bool> = phf_map! {
-    pub static IS_OPAL: OrderedMap<usize, bool> = phf_ordered_map! {
+    pub enum Colors {
+        Normal, // Reminder that you can find Normal 3 times
+        Opal,
+        Sapphire,
+        Ruby,
+        Garnet,
+        Emerald,
+    }
+
+    /// Checks if the item is valid in the current Treasuresphere position
+    pub fn is_item_in_ts_pos(item: &u32, ts_i: &usize, ts_count: &usize) -> bool {
+        let delta = (ts_count - ts_i) as u32; // 1..=6
+        match NOT_IN_LAST_SPHERES.get(&item) {
+            //if 2 (topaz charm), then as long as delta is 1 or 2, it returns false
+            Some(val) if val >= &delta => return false,
+            Some(_) => return true,
+            None => return true,
+        };
+    }
+
+    impl Colors {
+        /// Involves weighted indices, for use when generating treasurespheres
+        pub fn from_index(index: u8) -> Self {
+            match index {
+                0 | 1 | 2 => Colors::Normal,
+                3 => Colors::Opal,
+                4 => Colors::Sapphire,
+                5 => Colors::Ruby,
+                6 => Colors::Garnet,
+                7 => Colors::Emerald,
+                _ => panic!("Unexpected treasuresphere index: {}", index),
+            }
+        }
+
+        pub fn is_item_in_ts(&self, loot: &u32) -> bool {
+            let option = match &self {
+                Colors::Normal if *loot < *super::IT_COUNT as u32 => return true,
+                Colors::Normal => panic!("Loot index is out of bounds: {}", loot),
+                Colors::Opal => IS_OPAL.get(loot).clone(),
+                Colors::Sapphire => IS_SAPPHIRE.get(loot).clone(),
+                Colors::Ruby => IS_RUBY.get(loot).clone(),
+                Colors::Garnet => IS_GARNET.get(loot).clone(),
+                Colors::Emerald => IS_EMERALD.get(loot).clone(),
+            };
+
+            match option {
+                Some(val) => return *val,
+                None => panic!(
+                    "Loot not found at index: {}\nTreasuresphere:{}\nfunction: is_item_in_ts()",
+                    loot,
+                    self.to_string()
+                ),
+            }
+        }
+    }
+
+    // ToString feels so Rusty :D
+    impl ToString for Colors {
+        fn to_string(&self) -> String {
+            match self {
+                Colors::Normal => "normal",
+                Colors::Opal => "opal",
+                Colors::Sapphire => "sapphire",
+                Colors::Ruby => "ruby",
+                Colors::Garnet => "garnet",
+                Colors::Emerald => "emerald",
+            }
+            .to_string()
+        }
+    }
+
+    // Reminder to self, don't use usize/isize (u64/i64) as keys.
+    // They were the source of my issues with these returning None.
+    pub static IS_OPAL: OrderedMap<u32, bool> = phf_ordered_map! {
         0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 => true,
         24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 | 72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 98 | 99 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 109 | 110 | 111 | 112 | 113 | 114 | 115 | 116 | 117 | 118 | 119 => false,
         120 | 121 | 122 | 123 | 124 | 125 | 126 | 127 | 128 | 129 | 130 | 131 | 132 | 133 | 134 | 135 | 136 | 137 | 138 | 139 | 140 | 141 | 142 | 143 | 144 | 145 | 146 | 147 | 148 | 149 | 150 | 151 => true,
         152 | 153 | 154 | 155 | 156 | 157 | 158 | 159 | 160 | 161 | 162 | 163 | 164 | 165 | 166 | 167 | 168 | 169 | 170 | 171 | 172 | 173 | 174 | 175 | 176 | 177 | 178 | 179 | 180 | 181 | 182 | 183 | 184 | 185 | 186 | 187 | 188 | 189 | 190 | 191 | 192 | 193 | 194 | 195 | 196 | 197 | 198 | 199 => false,
     };
 
-    pub static IS_SAPPHIRE: OrderedMap<usize, bool> = phf_ordered_map! {
+    pub static IS_SAPPHIRE: OrderedMap<u32, bool> = phf_ordered_map! {
         24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 => true,
         120 | 121 | 122 | 123 | 124 | 125 | 126 | 127 => true,
         152 | 153 | 154 | 155 | 156 | 157 | 158 | 159 | 160 | 161 | 162 | 163 | 164 | 165 | 166 | 167 | 168 | 169 | 170 | 171 | 172 | 173 | 174 | 175 => true,
-        1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 => false,
+        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 => false,
         48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 | 72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 | 96 | 97 | 98 | 99 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 109 | 110 | 111 | 112 | 113 | 114 | 115 | 116 | 117 | 118 | 119 => false,
         128 | 129 | 130 | 131 | 132 | 133 | 134 | 135 | 136 | 137 | 138 | 139 | 140 | 141 | 142 | 143 | 144 | 145 | 146 | 147 | 148 | 149 | 150 | 151 => false,
         176 | 177 | 178 | 179 | 180 | 181 | 182 | 183 | 184 | 185 | 186 | 187 | 188 | 189 | 190 | 191 | 192 | 193 | 194 | 195 | 196 | 197 | 198 | 199 => false,
     };
 
-    pub static IS_RUBY: OrderedMap<usize, bool> = phf_ordered_map! {
+    pub static IS_RUBY: OrderedMap<u32, bool> = phf_ordered_map! {
         48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71 => true,
         128 | 129 | 130 | 131 | 132 | 133 | 134 | 135 => true,
         152 | 153 | 154 | 155 | 156 | 157 | 158 | 159 => true,
@@ -75,7 +149,7 @@ pub mod treasuresphere {
         192 | 193 | 194 | 195 | 196 | 197 | 198 | 199 => false,
     };
 
-    pub static IS_GARNET: OrderedMap<usize, bool> = phf_ordered_map! {
+    pub static IS_GARNET: OrderedMap<u32, bool> = phf_ordered_map! {
         72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95 => true,
         136 | 137 | 138 | 139 | 140 | 141 | 142 | 143 => true,
         160 | 161 | 162 | 163 | 164 | 165 | 166 | 167 => true,
@@ -88,7 +162,7 @@ pub mod treasuresphere {
         184 | 185 | 186 | 187 | 188 | 189 | 190 | 191 => false,
     };
 
-    pub static IS_EMERALD: OrderedMap<usize, bool> = phf_ordered_map! {
+    pub static IS_EMERALD: OrderedMap<u32, bool> = phf_ordered_map! {
         96 | 97 | 98 | 99 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 109 | 110 | 111 | 112 | 113 | 114 | 115 | 116 | 117 | 118 | 119 => true,
         144 | 145 | 146 | 147 | 148 | 149 | 150 | 151 => true,
         168 | 169 | 170 | 171 | 172 | 173 | 174 | 175 => true,
@@ -99,12 +173,12 @@ pub mod treasuresphere {
         176 | 177 | 178 | 179 | 180 | 181 | 182 | 183 => false,
     };
 
-    pub static NOT_IN_LAST_SPHERES: OrderedMap<usize, usize> = phf_ordered_map! {
+    pub static NOT_IN_LAST_SPHERES: OrderedMap<u32, u32> = phf_ordered_map! {
         70 => 2, // topaz charm
         101 | 104 | 108 => 1,// silver coin, butterfly ocarina and blue rose
     };
 
-    pub static ITEM_NAMES: OrderedMap<usize, &'static str> = phf_ordered_map! {
+    pub static ITEM_NAMES: OrderedMap<u32, &'static str> = phf_ordered_map! {
         0	=> "it_raven_grimoire",
         1	=> "it_blackwing_staff",
         2	=> "it_curse_talon",
