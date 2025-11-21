@@ -1,17 +1,14 @@
 // Module for writer functions
 use crate::loot;
 use anyhow::{Error, Result};
-// use anyhow::{bail, Context, Error, Result};
 use csv::Writer;
 use loot::treasuresphere::Colors as Treasuresphere;
 use loot::TS_COUNT; // vanilla constants for item count and ts count in 1.4.5
 
 /// Writes the headers for our CSV file
-///
-/// I've included an "relative" bool where for 1-3p
-/// Where in 1p, this excludes the headers  {2..=5}_{3,4}
-///
-/// I decided to skip using serde::serialization because it kinda gets clunky
+//
+// I've included an unused "relative" bool where for 1-3p
+// Where in 1p, this excludes the headers  {2..=5}_{3,4}
 pub fn field_wtr_headers(
     wtr: &mut Writer<Vec<u8>>,
     _relative: &bool,
@@ -24,6 +21,7 @@ pub fn field_wtr_headers(
         wtr.write_field(ts_t)?;
     }
 
+    // Writes the it_headers
     if *_relative {
         todo!("Relative flag not priority.");
         // for t in 0..*TS_COUNT {
@@ -72,7 +70,6 @@ pub fn field_wtr(
         let mut loot_index = 0;
         for t in 0..*TS_COUNT {
             for i in 0..*loot::IT_FOUND_MAX_PER_TS {
-                //5
                 let loot_count = loot_counts
                     .get(t)
                     .expect("ts indexing exceeded bounds of loot_counts in field_wtr().");
@@ -90,8 +87,8 @@ pub fn field_wtr(
                 wtr.write_field(item)?;
             }
         }
-        wtr.write_record(None::<&[u8]>)?;
     };
 
+    wtr.write_record(None::<&[u8]>)?;
     Ok(())
 }

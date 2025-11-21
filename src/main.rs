@@ -1,18 +1,16 @@
 mod loot; //phf hashmaps and Vanilla game constants
-mod writer;
+mod writer; //writing to wtr functions
 use anyhow::{Error, Result};
-// use anyhow::{bail, Context, Error, Result};
 use clap::Parser;
 use csv::Writer;
-use loot::treasuresphere::Colors as Treasuresphere;
+use loot::treasuresphere::Colors as Treasuresphere; // The treasuresphere types, i.e normal{1,2,3}, ruby, garnet
 use loot::{IT_COUNT, TS_COUNT}; // vanilla constants for item count and ts count in 1.4.5
 use rand::{self, seq::SliceRandom, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
 use std::fs::File;
 use std::io::Write;
-// use std::io::prelude::Write;
 
-/// Program that simulates a thousand of games and checks if items are found
+/// Program that simulates a number of games in Rabbit & Steel and writes items found
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -73,9 +71,19 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 
-/// Generates a set of random treasurespheres per game
-// I highly suspect this will work inconsistently seeded with multithreaded
-fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
+/// Generates a set of 6 random treasurespheres per game
+///
+/// # Examples
+///
+/// ```
+/// use loot::treasuresphere::Colors;
+///
+/// let mut rng = ChaCha8Rng::seed_from_u64(20251121);
+/// let ts = generate_ts(&mut rng);
+/// assert_eq!(ts.len(), 6)
+/// assert_eq!(ts.get(0) == Some<Colors>);
+/// ```
+pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
     let count = *TS_COUNT;
     let mut ts = Vec::with_capacity(count);
 
@@ -83,9 +91,7 @@ fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
     nums.shuffle(&mut seed);
     for i in 0..count {
         ts.push(Treasuresphere::from_index(nums[i]));
-    } //Omitting the last two numbers in array
-
-    // println!("{:?}", ts.iter().map(|x| x.to_string()).collect::<String>());
+    }
 
     return ts;
 }
@@ -93,9 +99,8 @@ fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
 /// Generates a set of random items per game
 ///
 /// The Result-Vec returned are string values of item names
-/// and are deemed "relative", i.e.
-/// - in 1P, items 4_2 [18] and 5_0 [19] will sit next to each other,
-/// where items 4_{3,4} are not evaulated
+/// and are deemed "relative", i.e.:
+/// - in 1P, items 4_2 [18] and 5_0 [19] will sit next to each other, where items 4_{3,4} are not evaulated
 /// - in 4p, items 4_4 [24] and 5_0 [25] next to each other
 #[allow(unused_variables)]
 fn generate_it(
@@ -103,12 +108,11 @@ fn generate_it(
     mut seed: &mut ChaCha8Rng,
     player_count: &u32,
 ) -> Result<Vec<&'static str>, Error> {
-    // Almost sure this will break if you try to put a non 6-value
     let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
     let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?;
 
     // Moved externally to avoid rerolling this every ts or it
-    // Should always reset the counter 'p', otherwise it will be biased towards previous flavoured ts-incompatible items
+    // Should always reset the internal p index between ts, otherwise may be biased towards flavoured ts-incompatible items
     let mut itempool: Vec<u32> = (0..200).collect();
     itempool.shuffle(&mut seed);
 
