@@ -111,14 +111,12 @@ fn generate_it(
     let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
     let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?;
 
-    // Moved externally to avoid rerolling this every ts or it
-    // Should always reset the internal p index between ts, otherwise may be biased towards flavoured ts-incompatible items
-    let mut itempool: Vec<u32> = (0..200).collect();
-    itempool.shuffle(&mut seed);
-
     let mut items_found: Vec<u32> = Vec::with_capacity(loot_sum);
+    let mut itempool: Vec<u32> = (0..200).collect();
 
     for t in 0..*TS_COUNT {
+        // Moved internally for testing
+        itempool.shuffle(&mut seed);
         let loot_count = loot_counts
             .get(t)
             .expect("ts indexed loot_counts out of bounds in generate_it()");
