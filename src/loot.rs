@@ -206,7 +206,7 @@ pub mod treasuresphere {
         21	=> "it_timemage_cap",
         22	=> "it_starry_cloak",
         23	=> "it_gemini_necklace",
-        // ===Windspace set sapphire===
+        // ===Wind set sapphire===
         24	=> "it_hawkfeather_fan",
         25	=> "it_windbite_dagger",
         26	=> "it_pidgeon_bow",
@@ -215,7 +215,7 @@ pub mod treasuresphere {
         29	=> "it_sparrow_feather",
         30	=> "it_winged_cap",
         31	=> "it_thiefs_coat",
-        // ===Bloodwolf set gem===
+        // ===Bloodwolf set sapphire===
         32	=> "it_vampiric_dagger",
         33	=> "it_bloody_bandage",
         34	=> "it_leech_staff",
@@ -224,7 +224,7 @@ pub mod treasuresphere {
         37	=> "it_bloodflower_brooch",
         38	=> "it_wolf_hood",
         39	=> "it_blood_vial",
-        // ===Assassin set gem===
+        // ===Assassin set sapphire===
         40	=> "it_black_wakizashi",
         41	=> "it_throwing_dagger",
         42	=> "it_assassins_knife",
@@ -233,7 +233,7 @@ pub mod treasuresphere {
         45	=> "it_ninja_robe",
         46	=> "it_kunoichi_hood",
         47	=> "it_shinobi_tabi",
-        // ===Rockdragon set gem===
+        // ===Rockdragon set ruby===
         48	=> "it_dragonhead_spear",
         49	=> "it_granite_greatsword",
         50	=> "it_greysteel_shield",
@@ -242,7 +242,7 @@ pub mod treasuresphere {
         53	=> "it_rockdragon_mail",
         54	=> "it_obsidian_hairpin",
         55	=> "it_iron_grieves",
-        // ===Flame set gem===
+        // ===Flame set ruby===
         56	=> "it_volcano_spear",
         57	=> "it_reddragon_blade",
         58	=> "it_flame_bow",
@@ -251,7 +251,7 @@ pub mod treasuresphere {
         61	=> "it_firescale_corset",
         62	=> "it_demon_horns",
         63	=> "it_flamewalker_boots",
-        // ===Gem set gem===
+        // ===Gem set ruby===
         64	=> "it_diamond_shield",
         65	=> "it_peridot_rapier",
         66	=> "it_garnet_staff",
@@ -260,7 +260,7 @@ pub mod treasuresphere {
         69	=> "it_amethyst_bracelet",
         70	=> "it_topaz_charm",
         71	=> "it_ruby_circlet",
-        // ===Lightning set gem===
+        // ===Lightning set garnet===
         72	=> "it_brightstorm_spear",
         73	=> "it_bolt_staff",
         74	=> "it_lightning_bow",
@@ -269,7 +269,7 @@ pub mod treasuresphere {
         77	=> "it_crown_of_storms",
         78	=> "it_thunderclap_gloves",
         79	=> "it_storm_petticoat",
-        // ===Shrine set gem===
+        // ===Shrine set garnet===
         80	=> "it_holy_greatsword",
         81	=> "it_sacred_bow",
         82	=> "it_purification_rod",
@@ -278,7 +278,7 @@ pub mod treasuresphere {
         85	=> "it_redwhite_ribbon",
         86	=> "it_divine_mirror",
         87	=> "it_golden_chime",
-        // ===Lucky set gem===
+        // ===Lucky set garnet===
         88	=> "it_book_of_cheats",
         89	=> "it_golden_katana",
         90	=> "it_glittering_trumpet",
@@ -287,7 +287,7 @@ pub mod treasuresphere {
         93	=> "it_silver_coin",
         94	=> "it_queens_crown",
         95	=> "it_mimick_rabbitfoot",
-        // ===Life set gem===
+        // ===Life set emerald===
         96	=> "it_butterfly_ocarina",
         97	=> "it_fairy_spear",
         98	=> "it_moss_shield",
@@ -296,7 +296,7 @@ pub mod treasuresphere {
         101	=> "it_sunflower_crown",
         102	=> "it_midsummer_dress",
         103	=> "it_grasswoven_bracelet",
-        // ===Poison set gem===
+        // ===Poison set emerald===
         104	=> "it_snakefang_dagger",
         105	=> "it_ivy_staff",
         106	=> "it_deathcap_tome",
@@ -305,7 +305,7 @@ pub mod treasuresphere {
         109	=> "it_poisonfrog_charm",
         110	=> "it_venom_hood",
         111	=> "it_chemists_coat",
-        // ===Depth set gem===
+        // ===Depth set emerald===
         112	=> "it_seashell_shield",
         113	=> "it_necronomicon",
         114	=> "it_tidal_greatsword",
@@ -314,7 +314,7 @@ pub mod treasuresphere {
         117	=> "it_hydrous_blob",
         118	=> "it_abyss_artifact",
         119	=> "it_lost_pendant",
-        // ===Darkbite set gem===
+        // ===Darkbite set OS===
         120	=> "it_sawtooth_cleaver",
         121	=> "it_ravens_dagger",
         122	=> "it_killing_note",
@@ -323,7 +323,7 @@ pub mod treasuresphere {
         125	=> "it_snipers_eyeglasses",
         126	=> "it_darkmage_charm",
         127	=> "it_firststrike_bracelet",
-        // ===Timegem set gem===
+        // ===Timegem set OR===
         128	=> "it_obsidian_rod",
         129	=> "it_darkglass_spear",
         130	=> "it_timespace_dagger",
@@ -332,7 +332,7 @@ pub mod treasuresphere {
         133	=> "it_nova_crown",
         134	=> "it_blackhole_charm",
         135	=> "it_twinstar_earrings",
-        // ===Youkai set gem===
+        // ===Youkai set OG===
         136	=> "it_kyou_no_omikuji",
         137	=> "it_youkai_bracelet",
         138	=> "it_oni_staff",
@@ -341,7 +341,7 @@ pub mod treasuresphere {
         141	=> "it_red_tanzaku",
         142	=> "it_vega_spear",
         143	=> "it_altair_dagger",
-        // ===Haunted set gem===
+        // ===Haunted set OE===
         144	=> "it_ghost_spear",
         145	=> "it_phantom_dagger",
         146	=> "it_cursed_candlestaff",
@@ -350,7 +350,7 @@ pub mod treasuresphere {
         149	=> "it_old_bonnet",
         150	=> "it_maid_outfit",
         151	=> "it_calling_bell",
-        // ===Gladiator set gem===
+        // ===Gladiator set SR===
         152	=> "it_grandmaster_spear",
         153	=> "it_teacher_knife",
         154	=> "it_tactician_rod",
@@ -359,7 +359,7 @@ pub mod treasuresphere {
         157	=> "it_gladiator_helmet",
         158	=> "it_lancer_gauntlets",
         159	=> "it_lion_charm",
-        // ===Sparkblade set gem===
+        // ===Sparkblade set SG===
         160	=> "it_bluebolt_staff",
         161	=> "it_lapis_sword",
         162	=> "it_shockwave_tome",
@@ -368,7 +368,7 @@ pub mod treasuresphere {
         165	=> "it_staticshock_earrings",
         166	=> "it_stormdance_gown",
         167	=> "it_blackbolt_ribbon",
-        // ===Swiftblade set gem===
+        // ===Swiftflight set SE===
         168	=> "it_crane_katana",
         169	=> "it_falconfeather_dagger",
         170	=> "it_tornado_staff",
@@ -377,7 +377,7 @@ pub mod treasuresphere {
         173	=> "it_talon_charm",
         174	=> "it_tiny_wings",
         175	=> "it_feathered_overcoat",
-        // ===Sacredflame set gem===
+        // ===Sacredflame set RG===
         176	=> "it_sandpriestess_spear",
         177	=> "it_flamedancer_dagger",
         178	=> "it_whiteflame_staff",
@@ -386,7 +386,7 @@ pub mod treasuresphere {
         181	=> "it_sun_pendant",
         182	=> "it_tiny_hourglass",
         183	=> "it_desert_earrings",
-        // ===Ruins set gem===
+        // ===Ruins set RE===
         184	=> "it_giant_stone_club",
         185	=> "it_ruins_sword",
         186	=> "it_mountain_staff",
@@ -395,7 +395,7 @@ pub mod treasuresphere {
         189	=> "it_stoneplate_armor",
         190	=> "it_sacredstone_charm",
         191	=> "it_clay_rabbit",
-        // ===Lakeshrine set gem===
+        // ===Lakeshrine set GE===
         192	=> "it_waterfall_polearm",
         193	=> "it_vorpal_dao",
         194	=> "it_jade_staff",
