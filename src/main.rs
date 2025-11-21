@@ -112,15 +112,22 @@ fn generate_it(
     mut seed: &mut ChaCha8Rng,
     player_count: &u32,
 ) -> Result<Vec<u32>, Error> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
-    let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?;
+    let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?; // n loot to roll every ts
+    let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?; // sum of loot rolled in game
 
-    let mut items_found: Vec<u32> = Vec::with_capacity(loot_sum);
+    let mut items_found: Vec<u32> = Vec::with_capacity(loot_sum); //collection of loot in game
     let mut itempool: Vec<u32> = (0..200).collect();
     itempool.shuffle(&mut seed);
 
     for t in 0..*TS_COUNT {
         let ts_t = ts.get(t).expect("Invalid treasuresphere indexed.");
+        let loot_count = loot_counts
+            .get(t)
+            .expect("ts indexed loot_counts out of bounds in generate_it()");
+        let mut p: usize = 0; // Count through item indices in "Pool" of total itempool
+
+        // [QoL] orders items per ts by their index by buffering it
+        let mut items_found_t: Vec<u32> = Vec::with_capacity(*loot::IT_FOUND_MAX_PER_TS);
 
         // Must reshuffle item order every different ts color
         if t > 0 {
@@ -130,11 +137,6 @@ fn generate_it(
             }
         }
 
-        let loot_count = loot_counts
-            .get(t)
-            .expect("ts indexed loot_counts out of bounds in generate_it()");
-        let mut p: usize = 0; // Count through item indices in "Pool" of total itempool
-
         'roll_next_item: for _ in 0..*loot_count {
             'find_valid_item: while p < *IT_COUNT {
                 let item: &u32 = itempool.get(p).expect("Failed index on item in pool.");
@@ -143,10 +145,10 @@ fn generate_it(
                     && !items_found.contains(item)
                     && loot::treasuresphere::is_item_in_ts_pos(item, &t, TS_COUNT)
                 {
-                    items_found.push(
+                    items_found_t.push(
                         *itempool
                             .get(p)
-                            .expect("items_found.push() failed in generate_it()"),
+                            .expect("items_found_t.push() failed in generate_it()"),
                     );
                     p += 1;
                     // println!("{items_found:?}");
@@ -157,6 +159,8 @@ fn generate_it(
                 }
             }
         }
+        items_found_t.sort_unstable();
+        items_found.append(&mut items_found_t);
     }
 
     return Ok(items_found);
