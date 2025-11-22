@@ -7,6 +7,8 @@ use loot::treasuresphere::Colors as Treasuresphere; // The treasuresphere types,
 use loot::{IT_COUNT, TS_COUNT}; // vanilla constants for item count and ts count in 1.4.5
 use rand::{self, seq::SliceRandom, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
+use rayon;
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::Write;
 
@@ -46,24 +48,34 @@ struct Args {
     // relative_headers: bool,
 }
 
-// Probs going to impliment tokio once I confirm this working
 fn main() -> Result<(), Error> {
     let args = Args::parse();
     let game_count = args.run_count as usize;
     let player_count = args.player_count as usize;
-    let mut seed = match args.seed {
-        Some(val) => ChaCha8Rng::seed_from_u64(val),
-        None => ChaCha8Rng::from_os_rng(),
-    };
 
-    let mut wtr = Writer::from_writer(vec![]);
+    let mut wtr = Writer::from_writer(Vec::with_capacity(game_count));
     writer::field_wtr_headers(&mut wtr, &false, &player_count)?;
 
-    for _ in 0..game_count {
-        let ts: Vec<Treasuresphere> = generate_ts(&mut seed);
-        let it: Vec<usize> = generate_it(&ts, &mut seed, &player_count)?;
-        writer::field_wtr(&mut wtr, &ts, &it, &false, &player_count)?;
-    }
+    // My longest step is running generate_{ts, it}, so
+    // it's fine leaving Writer struct on single thread
+    //
+    // (mutable references to outside objects are bad with rayon)
+    let data: Vec<(Vec<Treasuresphere>, Vec<usize>)> = (0..game_count)
+        .into_par_iter()
+        .map(|i| {
+            let mut seed = match args.seed {
+                Some(val) => ChaCha8Rng::seed_from_u64(val),
+                None => ChaCha8Rng::from_os_rng(),
+            };
+            seed.set_stream(i as u64); // Makes the seed deterministic despite threads
+            let ts: Vec<Treasuresphere> = generate_ts(&mut seed);
+            let it: Vec<usize> = generate_it(&ts, &mut seed, &player_count).unwrap();
+            (ts, it)
+        })
+        .collect();
+
+    data.iter()
+        .for_each(|(t, i)| writer::field_wtr(&mut wtr, &t, &i, &false, &player_count).unwrap());
 
     if let Some(file) = args.output_file {
         let mut file = File::create(file)?;
