@@ -3,13 +3,13 @@
 /// Treasuresphere Count
 ///
 /// May break if changed from 6 as of right now.
-pub static TS_COUNT: &'static usize = &6usize;
+pub static TS_COUNT: &usize = &6usize;
 
 /// Item Count in game
-pub static IT_COUNT: &'static usize = &200usize;
+pub static IT_COUNT: &usize = &200usize;
 
 /// Max items found per Treasuresphere
-pub static IT_FOUND_MAX_PER_TS: &'static usize = &5usize;
+pub static IT_FOUND_MAX_PER_TS: &usize = &5usize;
 
 /// Module to call constants based on player count
 pub mod player_loot {
@@ -33,15 +33,16 @@ pub mod player_loot {
         Ok(loot_counts(player_count)?.into_iter().sum())
     }
 
-    static ONE: &'static [usize; 6] = &[5, 5, 3, 3, 3, 3];
-    static TWO: &'static [usize; 6] = &[5, 5, 4, 4, 4, 4];
-    static THREE: &'static [usize; 6] = &[5, 5, 4, 4, 4, 4];
-    static FOUR: &'static [usize; 6] = &[5, 5, 5, 5, 5, 5];
+    static ONE: &[usize; 6] = &[5, 5, 3, 3, 3, 3];
+    static TWO: &[usize; 6] = &[5, 5, 4, 4, 4, 4];
+    static THREE: &[usize; 6] = &[5, 5, 4, 4, 4, 4];
+    static FOUR: &[usize; 6] = &[5, 5, 5, 5, 5, 5];
 }
 
 pub mod treasuresphere {
     use phf::{OrderedMap, OrderedSet};
     use phf_macros::{phf_ordered_map, phf_ordered_set};
+    use std::fmt;
 
     #[derive(Debug, PartialEq, Eq)]
     pub enum Colors {
@@ -58,10 +59,10 @@ pub mod treasuresphere {
         let delta = ts_count - ts_i; // 1..=6
         match NOT_IN_LAST_SPHERES.get(&(*item as u32)) {
             //if 2 (topaz charm), then as long as delta is 1 or 2, it returns false
-            Some(val) if val >= &delta => return false,
-            Some(_) => return true,
-            None => return true,
-        };
+            Some(val) if val >= &delta => false,
+            Some(_) => true,
+            None => true,
+        }
     }
 
     impl Colors {
@@ -69,18 +70,18 @@ pub mod treasuresphere {
             //This needs to be modifiable
             match &self {
                 Colors::Normal => (0..*super::IT_COUNT).collect(),
-                Colors::Opal => IS_OPAL.iter().map(|x| *x).collect(),
-                Colors::Sapphire => IS_SAPPHIRE.iter().map(|x| *x).collect(),
-                Colors::Ruby => IS_RUBY.iter().map(|x| *x).collect(),
-                Colors::Garnet => IS_GARNET.iter().map(|x| *x).collect(),
-                Colors::Emerald => IS_EMERALD.iter().map(|x| *x).collect(),
+                Colors::Opal => IS_OPAL.iter().copied().collect(),
+                Colors::Sapphire => IS_SAPPHIRE.iter().copied().collect(),
+                Colors::Ruby => IS_RUBY.iter().copied().collect(),
+                Colors::Garnet => IS_GARNET.iter().copied().collect(),
+                Colors::Emerald => IS_EMERALD.iter().copied().collect(),
             }
         }
 
         /// Involves weighted indices, for use when generating treasurespheres
-        pub fn from_index(index: u8) -> Self {
+        pub fn from_index(index: &usize) -> Self {
             match index {
-                0 | 1 | 2 => Colors::Normal,
+                0..=2 => Colors::Normal,
                 3 => Colors::Opal,
                 4 => Colors::Sapphire,
                 5 => Colors::Ruby,
@@ -91,18 +92,17 @@ pub mod treasuresphere {
         }
     }
 
-    // ToString feels so Rusty :D
-    impl ToString for Colors {
-        fn to_string(&self) -> String {
-            match self {
+    impl fmt::Display for Colors {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            let color = match self {
                 Colors::Normal => "normal",
                 Colors::Opal => "opal",
                 Colors::Sapphire => "sapphire",
                 Colors::Ruby => "ruby",
                 Colors::Garnet => "garnet",
                 Colors::Emerald => "emerald",
-            }
-            .to_string()
+            };
+            write!(f, "{}", color)
         }
     }
 

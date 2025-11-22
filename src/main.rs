@@ -7,7 +7,6 @@ use loot::treasuresphere::Colors as Treasuresphere; // The treasuresphere types,
 use loot::{IT_COUNT, TS_COUNT}; // vanilla constants for item count and ts count in 1.4.5
 use rand::{self, seq::SliceRandom, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
-use rayon;
 use rayon::prelude::*;
 use std::fs::File;
 use std::io::Write;
@@ -75,7 +74,7 @@ fn main() -> Result<(), Error> {
         .collect();
 
     data.iter()
-        .for_each(|(t, i)| writer::field_wtr(&mut wtr, &t, &i, &false, &player_count).unwrap());
+        .for_each(|(t, i)| writer::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
 
     if let Some(file) = args.output_file {
         let mut file = File::create(file)?;
@@ -100,16 +99,15 @@ fn main() -> Result<(), Error> {
 /// assert_eq!(ts.get(0) == Some<Colors>);
 /// ```
 pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
-    let count = *TS_COUNT;
-    let mut ts = Vec::with_capacity(count);
+    let mut ts = Vec::with_capacity(*TS_COUNT);
 
-    let mut nums: Vec<u8> = (0..8).collect();
-    nums.shuffle(&mut seed);
-    for i in 0..count {
-        ts.push(Treasuresphere::from_index(nums[i]));
+    let mut nums: Vec<usize> = (0..8).collect();
+    nums.partial_shuffle(&mut seed, *TS_COUNT);
+    for i in nums {
+        ts.push(Treasuresphere::from_index(&i));
     }
 
-    return ts;
+    ts
 }
 
 /// Generates a set of random items per game
@@ -120,7 +118,7 @@ pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
 /// - in 4p, items 4_4 [24] and 5_0 [25] next to each other
 #[allow(unused_variables)]
 fn generate_it(
-    ts: &Vec<Treasuresphere>,
+    ts: &[Treasuresphere],
     mut seed: &mut ChaCha8Rng,
     player_count: &usize,
 ) -> Result<Vec<usize>, Error> {
@@ -170,7 +168,7 @@ fn generate_it(
         items_found.append(&mut items_found_t);
     }
 
-    return Ok(items_found);
+    Ok(items_found)
 
     // let items_found_str: Vec<&'static str> = items_found
     //     .iter()

@@ -49,12 +49,12 @@ pub fn field_wtr_headers(
 
 pub fn field_wtr(
     wtr: &mut Writer<Vec<u8>>,
-    treasurespheres: &Vec<Treasuresphere>,
-    loot: &Vec<usize>,
+    treasurespheres: &[Treasuresphere],
+    loot: &[usize],
     _relative: &bool,
     player_count: &usize,
 ) -> Result<(), Error> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
+    let loot_counts = loot::player_loot::loot_counts(*player_count)?;
 
     if *_relative {
         todo!("Relative flag not priority.");
@@ -77,8 +77,7 @@ pub fn field_wtr(
                 let item = if i < *loot_count {
                     let it = *loot
                         .get(loot_index)
-                        .expect("Item index exceeded bounds of loot in field_wtr().")
-                        as usize;
+                        .expect("Item index exceeded bounds of loot in field_wtr().");
                     loot_index += 1;
                     loot::treasuresphere::ITEM_NAMES
                         .index(it)
