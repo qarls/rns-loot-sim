@@ -1,19 +1,27 @@
-# Loot Generator Simulator CLI in CSV for Vanilla Rabbit & Steel Game Runs
+# R&S Loot Generator Simulator CLI (CSV)
 Small hobby project to practice coding skills and work with libraries.
+
+The program (on my specs) now creates a 100,000 entries in 1.446s.
 
 I have no plans to release this as an executable, but I'll provide
 an examples folder with these files if that is all you care for.
 
-I consider this still __unfinished__ due to:
-- Requires unit testing
-- Have not checked if my hashtables match 1:1 to the game
-- Patch 1.5.x is coming out soon (with new items)
-- No gem shops or items included
-- Not tested on Windows
+## Roadmap
+I consider this program in a good state, I have potential items
+to do if I rework this code again:
+- [x] Proper unit testing
+  - [x] Matches what other users have statistically
+- [x] Check hashtables match 1:1 to the game (1.4.x)
+- [x] Multithreading 
+- [ ] Include a working flag to use only indices for Treasurespheres and Items.
+- [ ] Update to game patch 1.5.x items on release
+- [ ] Add gems and items encountered in shops
+- [ ] Add encountered biomes
+- [ ] Test on Windows
 
 ## Description
-Small CLI program that prints or generates a `.csv` file simulating
-the loot you'd find over a number of runs.
+Multithreading CLI program that prints or generates a `.csv` file simulating
+the loot you'd find over a number of runs for the game *Rabbit and Steel*.
 
 Currently, there's a coded limit of 200,000 entries (85MB).
 ```
@@ -28,6 +36,17 @@ rns-loot-sim [options]
   -s, --seed <SEED>                  Use a positive interger (u64) seed for RNG (non-compliant)
   -h, --help                         Print help
   -V, --version                      Print version
+```
+
+### CSV file format
+Currently the `.csv` file is limited to the following fields:
+- player_count: number of players
+- ts_{0..=5}: the found Treasuresphere color
+- it_{0..5}_{0..4}: the item found by their Treasuresphere and index in that Treasuresphere.
+
+``` csv
+player_count,ts_0,...,ts_5,it_0_0,it_0_1,it_0_2,...,it_5_2,it_5_3,it_5_4
+4,opal,...,normal,it_blackwing_staff,it_lullaby_harp,it_twinstar_earrings,...,it_divine_mirror,it_vega_spear,it_mountain_staff
 ```
 
 ## Disclaimer
