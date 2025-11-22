@@ -1,13 +1,9 @@
-mod loot; //phf hashmaps and Vanilla game constants
-mod writer; //writing to wtr functions
-use anyhow::{Error, Result};
 use clap::Parser;
-use csv::Writer;
-use loot::treasuresphere::Colors as Treasuresphere; // The treasuresphere types, i.e normal{1,2,3}, ruby, garnet
-use loot::{IT_COUNT, TS_COUNT}; // vanilla constants for item count and ts count in 1.4.5
-use rand::{self, seq::SliceRandom, SeedableRng};
+use rand::{self, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
 use rayon::prelude::*;
+use rns_loot_sim::{self, Colors, Writer};
+use rns_loot_sim::{Error, Result}; // Anyhow
 use std::fs::File;
 use std::io::Write;
 
@@ -53,13 +49,9 @@ fn main() -> Result<(), Error> {
     let player_count = args.player_count as usize;
 
     let mut wtr = Writer::from_writer(Vec::with_capacity(game_count));
-    writer::field_wtr_headers(&mut wtr, &false, &player_count)?;
+    rns_loot_sim::field_wtr_headers(&mut wtr, &false, &player_count)?;
 
-    // My longest step is running generate_{ts, it}, so
-    // it's fine leaving Writer struct on single thread
-    //
-    // (mutable references to outside objects are bad with rayon)
-    let data: Vec<(Vec<Treasuresphere>, Vec<usize>)> = (0..game_count)
+    let data: Vec<(Vec<Colors>, Vec<usize>)> = (0..game_count)
         .into_par_iter()
         .map(|i| {
             let mut seed = match args.seed {
@@ -67,14 +59,14 @@ fn main() -> Result<(), Error> {
                 None => ChaCha8Rng::from_os_rng(),
             };
             seed.set_stream(i as u64); // Makes the seed deterministic despite threads
-            let ts: Vec<Treasuresphere> = generate_ts(&mut seed);
-            let it: Vec<usize> = generate_it(&ts, &mut seed, &player_count).unwrap();
+            let ts: Vec<Colors> = rns_loot_sim::generate_ts(&mut seed);
+            let it: Vec<usize> = rns_loot_sim::generate_it(&ts, &mut seed, &player_count).unwrap();
             (ts, it)
         })
         .collect();
 
     data.iter()
-        .for_each(|(t, i)| writer::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
+        .for_each(|(t, i)| rns_loot_sim::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
 
     if let Some(file) = args.output_file {
         let mut file = File::create(file)?;
@@ -84,102 +76,4 @@ fn main() -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-/// Generates a set of 6 random treasurespheres per game
-///
-/// # Examples
-///
-/// ```
-/// use loot::treasuresphere::Colors;
-///
-/// let mut rng = ChaCha8Rng::seed_from_u64(20251121);
-/// let ts = generate_ts(&mut rng);
-/// assert_eq!(ts.len(), 6)
-/// assert_eq!(ts.get(0) == Some<Colors>);
-/// ```
-pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
-    let mut ts = Vec::with_capacity(*TS_COUNT);
-
-    let mut nums: Vec<usize> = (0..8).collect();
-    nums.partial_shuffle(&mut seed, *TS_COUNT);
-    for i in nums {
-        ts.push(Treasuresphere::from_index(&i));
-    }
-
-    ts
-}
-
-/// Generates a set of random items per game
-///
-/// The Result-Vec returned are string values of item names
-/// and are deemed "relative", i.e.:
-/// - in 1P, items 4_2 [18] and 5_0 [19] will sit next to each other, where items 4_{3,4} are not evaulated
-/// - in 4p, items 4_4 [24] and 5_0 [25] next to each other
-#[allow(unused_variables)]
-fn generate_it(
-    ts: &[Treasuresphere],
-    mut seed: &mut ChaCha8Rng,
-    player_count: &usize,
-) -> Result<Vec<usize>, Error> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count)?; // n loot to roll every ts
-    let loot_sum = loot::player_loot::loot_sum(*player_count)?; // sum of loot rolled in game
-
-    let mut items_found: Vec<usize> = Vec::with_capacity(loot_sum); //collection of loot in game
-
-    for t in 0..*TS_COUNT {
-        let ts_t = ts.get(t).expect("Invalid treasuresphere indexed.");
-        let loot_count = loot_counts
-            .get(t)
-            .expect("ts indexed loot_counts out of bounds in generate_it()");
-        let mut p: usize = 0; // Count through item indices in "Pool" of total itempool
-
-        // [QoL] orders items per ts by their index by buffering it
-        let mut items_found_t: Vec<usize> = Vec::with_capacity(*loot::IT_FOUND_MAX_PER_TS);
-
-        // Pull items in itempool and partially shuffle them
-        let mut itempool = ts_t.items_in_ts();
-        let itempool_slice = itempool
-            .partial_shuffle(&mut seed, loot_count + items_found.len())
-            .0;
-
-        'roll_next_item: for i in 0..*loot_count {
-            'find_valid_item: while p < *IT_COUNT {
-                let item = itempool_slice
-                    .get(p)
-                    .expect("Failed index on item in pool.");
-                if !items_found.contains(item)
-                    && loot::treasuresphere::is_item_in_ts_pos(item, &t, TS_COUNT)
-                {
-                    items_found_t.push(
-                        *itempool_slice
-                            .get(p)
-                            .expect("items_found_t.push() failed in generate_it()"),
-                    );
-                    p += 1;
-                    continue 'roll_next_item; // advances to next item
-                } else {
-                    p += 1;
-                    continue 'find_valid_item;
-                }
-            }
-        }
-        items_found_t.sort_unstable();
-        items_found.append(&mut items_found_t);
-    }
-
-    Ok(items_found)
-
-    // let items_found_str: Vec<&'static str> = items_found
-    //     .iter()
-    //     .map(|x| {
-    //         *loot::treasuresphere::ITEM_NAMES
-    //             .get(x)
-    //             .expect("Index of item index to names in generate_it() misindexed")
-    //     })
-    //     .collect::<Vec<&str>>();
-
-    // assert_eq!(loot_sum, items_found_str.len()); // Simply checks if they're same length, should not fail
-
-    // return Ok(items_found_str);
 }
