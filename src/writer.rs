@@ -12,7 +12,7 @@ use loot::TS_COUNT; // vanilla constants for item count and ts count in 1.4.5
 pub fn field_wtr_headers(
     wtr: &mut Writer<Vec<u8>>,
     _relative: &bool,
-    _player_count: &u32,
+    _player_count: &usize,
 ) -> Result<(), Error> {
     // Writes the ts_headers
     wtr.write_field("player_count")?;
@@ -50,9 +50,9 @@ pub fn field_wtr_headers(
 pub fn field_wtr(
     wtr: &mut Writer<Vec<u8>>,
     treasurespheres: &Vec<Treasuresphere>,
-    loot: &Vec<u32>,
+    loot: &Vec<usize>,
     _relative: &bool,
-    player_count: &u32,
+    player_count: &usize,
 ) -> Result<(), Error> {
     let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?;
 

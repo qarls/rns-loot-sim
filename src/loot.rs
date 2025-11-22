@@ -39,9 +39,6 @@ pub mod player_loot {
     static FOUR: &'static [usize; 6] = &[5, 5, 5, 5, 5, 5];
 }
 
-// I realize I don't need to include "false", given retrieving these values
-// will generate a none if not found, but ehh let's go this way.
-
 pub mod treasuresphere {
     use phf::{OrderedMap, OrderedSet};
     use phf_macros::{phf_ordered_map, phf_ordered_set};
@@ -57,9 +54,9 @@ pub mod treasuresphere {
     }
 
     /// Checks if the item is valid in the current Treasuresphere position
-    pub fn is_item_in_ts_pos(item: &u32, ts_i: &usize, ts_count: &usize) -> bool {
-        let delta = (ts_count - ts_i) as u32; // 1..=6
-        match NOT_IN_LAST_SPHERES.get(&item) {
+    pub fn is_item_in_ts_pos(item: &usize, ts_i: &usize, ts_count: &usize) -> bool {
+        let delta = ts_count - ts_i; // 1..=6
+        match NOT_IN_LAST_SPHERES.get(&(*item as u32)) {
             //if 2 (topaz charm), then as long as delta is 1 or 2, it returns false
             Some(val) if val >= &delta => return false,
             Some(_) => return true,
@@ -68,6 +65,18 @@ pub mod treasuresphere {
     }
 
     impl Colors {
+        pub fn items_in_ts(&self) -> Vec<usize> {
+            //This needs to be modifiable
+            match &self {
+                Colors::Normal => (0..*super::IT_COUNT).collect(),
+                Colors::Opal => IS_OPAL.iter().map(|x| *x).collect(),
+                Colors::Sapphire => IS_SAPPHIRE.iter().map(|x| *x).collect(),
+                Colors::Ruby => IS_RUBY.iter().map(|x| *x).collect(),
+                Colors::Garnet => IS_GARNET.iter().map(|x| *x).collect(),
+                Colors::Emerald => IS_EMERALD.iter().map(|x| *x).collect(),
+            }
+        }
+
         /// Involves weighted indices, for use when generating treasurespheres
         pub fn from_index(index: u8) -> Self {
             match index {
@@ -78,18 +87,6 @@ pub mod treasuresphere {
                 6 => Colors::Garnet,
                 7 => Colors::Emerald,
                 _ => panic!("Unexpected treasuresphere index: {}", index),
-            }
-        }
-
-        pub fn is_item_in_ts(&self, loot: &u32) -> bool {
-            match &self {
-                Colors::Normal if *loot < *super::IT_COUNT as u32 => true,
-                Colors::Normal => panic!("Loot index is out of bounds: {}", loot),
-                Colors::Opal => IS_OPAL.contains(loot),
-                Colors::Sapphire => IS_SAPPHIRE.contains(loot),
-                Colors::Ruby => IS_RUBY.contains(loot),
-                Colors::Garnet => IS_GARNET.contains(loot),
-                Colors::Emerald => IS_EMERALD.contains(loot),
             }
         }
     }
@@ -109,26 +106,21 @@ pub mod treasuresphere {
         }
     }
 
-    // I made an amatuer script from transforming it from format
-    // `0..=23 | 120..=151 => true,`
-    //
-    // Reminder to self, don't use usize/isize (u64/i64) as keys.
-    // They were the source of my issues with these returning None.
     // 0..=23 | 120..=151 => true,
-    pub static IS_OPAL: OrderedSet<u32> = phf_ordered_set! {
+    pub static IS_OPAL: OrderedSet<usize> = phf_ordered_set! {
         0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23,
         120 | 121 | 122 | 123 | 124 | 125 | 126 | 127 | 128 | 129 | 130 | 131 | 132 | 133 | 134 | 135 | 136 | 137 | 138 | 139 | 140 | 141 | 142 | 143 | 144 | 145 | 146 | 147 | 148 | 149 | 150 | 151,
     };
 
     // 24..=47 | 120..=127 | 152..=175 => true,
-    pub static IS_SAPPHIRE: OrderedSet<u32> = phf_ordered_set! {
+    pub static IS_SAPPHIRE: OrderedSet<usize> = phf_ordered_set! {
         24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47,
         120 | 121 | 122 | 123 | 124 | 125 | 126 | 127,
         152 | 153 | 154 | 155 | 156 | 157 | 158 | 159 | 160 | 161 | 162 | 163 | 164 | 165 | 166 | 167 | 168 | 169 | 170 | 171 | 172 | 173 | 174 | 175,
     };
 
     // 48..=71 | 128..=135 | 152..=159 | 176..=191,
-    pub static IS_RUBY: OrderedSet<u32> = phf_ordered_set! {
+    pub static IS_RUBY: OrderedSet<usize> = phf_ordered_set! {
         48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71,
         128 | 129 | 130 | 131 | 132 | 133 | 134 | 135,
         152 | 153 | 154 | 155 | 156 | 157 | 158 | 159,
@@ -136,7 +128,7 @@ pub mod treasuresphere {
     };
 
     // 72..=95 | 136..=143 | 160..=167 | 176..=183 | 192..=199,
-    pub static IS_GARNET: OrderedSet<u32> = phf_ordered_set! {
+    pub static IS_GARNET: OrderedSet<usize> = phf_ordered_set! {
         72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95,
         136 | 137 | 138 | 139 | 140 | 141 | 142 | 143,
         160 | 161 | 162 | 163 | 164 | 165 | 166 | 167,
@@ -145,14 +137,14 @@ pub mod treasuresphere {
     };
 
     // 96..=119 | 144..=151 | 168..=175 | 184..=199,
-    pub static IS_EMERALD: OrderedSet<u32> = phf_ordered_set! {
+    pub static IS_EMERALD: OrderedSet<usize> = phf_ordered_set! {
         96 | 97 | 98 | 99 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 109 | 110 | 111 | 112 | 113 | 114 | 115 | 116 | 117 | 118 | 119,
         144 | 145 | 146 | 147 | 148 | 149 | 150 | 151,
         168 | 169 | 170 | 171 | 172 | 173 | 174 | 175,
         184 | 185 | 186 | 187 | 188 | 189 | 190 | 191 | 192 | 193 | 194 | 195 | 196 | 197 | 198 | 199,
     };
 
-    pub static NOT_IN_LAST_SPHERES: OrderedMap<u32, u32> = phf_ordered_map! {
+    pub static NOT_IN_LAST_SPHERES: OrderedMap<u32, usize> = phf_ordered_map! {
         70 => 2, // topaz charm
         93 | 96 | 100 => 1,// silver coin, butterfly ocarina and blue rose
     };

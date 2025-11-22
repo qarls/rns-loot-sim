@@ -49,8 +49,8 @@ struct Args {
 // Probs going to impliment tokio once I confirm this working
 fn main() -> Result<(), Error> {
     let args = Args::parse();
-    let game_count = args.run_count as u32;
-    let player_count = args.player_count as u32;
+    let game_count = args.run_count as usize;
+    let player_count = args.player_count as usize;
     let mut seed = match args.seed {
         Some(val) => ChaCha8Rng::seed_from_u64(val),
         None => ChaCha8Rng::from_os_rng(),
@@ -61,7 +61,7 @@ fn main() -> Result<(), Error> {
 
     for _ in 0..game_count {
         let ts: Vec<Treasuresphere> = generate_ts(&mut seed);
-        let it: Vec<u32> = generate_it(&ts, &mut seed, &player_count)?;
+        let it: Vec<usize> = generate_it(&ts, &mut seed, &player_count)?;
         writer::field_wtr(&mut wtr, &ts, &it, &false, &player_count)?;
     }
 
@@ -110,14 +110,12 @@ pub fn generate_ts(mut seed: &mut ChaCha8Rng) -> Vec<Treasuresphere> {
 fn generate_it(
     ts: &Vec<Treasuresphere>,
     mut seed: &mut ChaCha8Rng,
-    player_count: &u32,
-) -> Result<Vec<u32>, Error> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count as usize)?; // n loot to roll every ts
-    let loot_sum = loot::player_loot::loot_sum(*player_count as usize)?; // sum of loot rolled in game
+    player_count: &usize,
+) -> Result<Vec<usize>, Error> {
+    let loot_counts = loot::player_loot::loot_counts(*player_count)?; // n loot to roll every ts
+    let loot_sum = loot::player_loot::loot_sum(*player_count)?; // sum of loot rolled in game
 
-    let mut items_found: Vec<u32> = Vec::with_capacity(loot_sum); //collection of loot in game
-    let mut itempool: Vec<u32> = (0..200).collect();
-    itempool.shuffle(&mut seed);
+    let mut items_found: Vec<usize> = Vec::with_capacity(loot_sum); //collection of loot in game
 
     for t in 0..*TS_COUNT {
         let ts_t = ts.get(t).expect("Invalid treasuresphere indexed.");
@@ -127,31 +125,28 @@ fn generate_it(
         let mut p: usize = 0; // Count through item indices in "Pool" of total itempool
 
         // [QoL] orders items per ts by their index by buffering it
-        let mut items_found_t: Vec<u32> = Vec::with_capacity(*loot::IT_FOUND_MAX_PER_TS);
+        let mut items_found_t: Vec<usize> = Vec::with_capacity(*loot::IT_FOUND_MAX_PER_TS);
 
-        // Must reshuffle item order every different ts color
-        if t > 0 {
-            match ts.get(t - 1) {
-                Some(val) if val == ts_t => (), // No need to shuffle on consecutive normal ts
-                None | Some(_) => itempool.shuffle(&mut seed),
-            }
-        }
+        // Pull items in itempool and partially shuffle them
+        let mut itempool = ts_t.items_in_ts();
+        let itempool_slice = itempool
+            .partial_shuffle(&mut seed, loot_count + items_found.len())
+            .0;
 
-        'roll_next_item: for _ in 0..*loot_count {
+        'roll_next_item: for i in 0..*loot_count {
             'find_valid_item: while p < *IT_COUNT {
-                let item: &u32 = itempool.get(p).expect("Failed index on item in pool.");
-
-                if ts_t.is_item_in_ts(item)
-                    && !items_found.contains(item)
+                let item = itempool_slice
+                    .get(p)
+                    .expect("Failed index on item in pool.");
+                if !items_found.contains(item)
                     && loot::treasuresphere::is_item_in_ts_pos(item, &t, TS_COUNT)
                 {
                     items_found_t.push(
-                        *itempool
+                        *itempool_slice
                             .get(p)
                             .expect("items_found_t.push() failed in generate_it()"),
                     );
                     p += 1;
-                    // println!("{items_found:?}");
                     continue 'roll_next_item; // advances to next item
                 } else {
                     p += 1;
