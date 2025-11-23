@@ -10,22 +10,36 @@ pub use rand_chacha::ChaCha8Rng as Rng; // vanilla constants for item count and 
 /// # Examples
 ///
 /// ```
-/// use loot::treasuresphere::Colors;
+/// use rns_loot_sim::Colors;
+/// use rns_loot_sim::Rng;
+/// use rand::SeedableRng;
 ///
-/// let mut rng = ChaCha8Rng::seed_from_u64(20251121);
-/// let ts = generate_ts(&mut rng);
-/// assert_eq!(ts.len(), 6)
-/// assert_eq!(ts.get(0) == Some<Colors>);
+/// # fn main() {
+///     let mut rng = Rng::seed_from_u64(20251121);
+///     let ts: Vec<Colors> = rns_loot_sim::generate_ts(&mut rng);
+///     assert_eq!(ts.len(), 6);
+///
+///     let ts_counts_max = [3,1,1,1,1,1];
+///     let mut ts_counts = [0; 6];
+///     ts.into_iter().for_each(|x| match x {
+///         Colors::Normal => ts_counts[0]+=1,
+///         Colors::Opal => ts_counts[1]+=1,
+///         Colors::Sapphire => ts_counts[2]+=1,
+///         Colors::Ruby => ts_counts[3]+=1,
+///         Colors::Garnet => ts_counts[4]+=1,
+///         Colors::Emerald => ts_counts[5]+=1,
+///     });
+///
+///     for (t, count) in ts_counts.iter().enumerate() {
+///             let max_count = ts_counts_max.get(t).unwrap();
+///             assert!(count <= max_count);
+///     }
+/// # }
 /// ```
 pub fn generate_ts(mut seed: &mut Rng) -> Vec<Colors> {
-    let mut ts = Vec::with_capacity(*loot::TS_COUNT);
-
     let mut nums: Vec<usize> = (0..8).collect();
-    nums.partial_shuffle(&mut seed, *loot::TS_COUNT);
-    for i in nums {
-        ts.push(Colors::from_index(&i));
-    }
-
+    nums = nums.partial_shuffle(&mut seed, *loot::TS_COUNT).0.to_vec();
+    let ts: Vec<Colors> = nums.into_iter().map(|t| Colors::from_index(&t)).collect();
     ts
 }
 

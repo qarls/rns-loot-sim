@@ -1,4 +1,4 @@
-// Module for game constants, hashmaps and helper functions associated with them
+///! Module for game constants, hashmaps and helper functions associated with them
 
 /// Treasuresphere Count
 ///
