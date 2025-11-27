@@ -6,6 +6,7 @@ use rns_loot_sim::{self, Colors, Writer};
 use rns_loot_sim::{Error, Result}; // Anyhow
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 
 /// Program that simulates a number of games in Rabbit & Steel and writes items found
 #[derive(Parser, Debug)]
@@ -22,7 +23,7 @@ struct Args {
 
     /// Output file (csv), if not used, print to stdout
     #[arg(short, long)]
-    output_file: Option<String>,
+    output_file: Option<PathBuf>,
 
     /// Use a positive interger (u64) seed for RNG (non-compliant)
     #[arg(short, long)]
@@ -59,7 +60,7 @@ fn main() -> Result<(), Error> {
                 None => ChaCha8Rng::from_os_rng(),
             };
             seed.set_stream(i as u64); // Makes the seed deterministic despite threads
-            let ts: Vec<Colors> = rns_loot_sim::generate_ts(&mut seed);
+            let ts: Vec<Colors> = rns_loot_sim::generate_ts(&mut seed).unwrap();
             let it: Vec<usize> = rns_loot_sim::generate_it(&ts, &mut seed, &player_count).unwrap();
             (ts, it)
         })
@@ -68,8 +69,8 @@ fn main() -> Result<(), Error> {
     data.iter()
         .for_each(|(t, i)| rns_loot_sim::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
 
-    if let Some(file) = args.output_file {
-        let mut file = File::create(file)?;
+    if let Some(path) = args.output_file {
+        let mut file = File::create(path)?;
         file.write_all(&wtr.into_inner()?)?;
     } else {
         println!("{}", String::from_utf8(wtr.into_inner()?)?);

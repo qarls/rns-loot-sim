@@ -13,23 +13,20 @@ pub static IT_FOUND_MAX_PER_TS: &usize = &5usize;
 
 /// Module to call constants based on player count
 pub mod player_loot {
-    use anyhow::{bail, Error};
+    use crate::error::RnsError;
 
-    pub fn loot_counts(player_count: usize) -> Result<Vec<usize>, Error> {
+    pub fn loot_counts(player_count: usize) -> Result<Vec<usize>, RnsError> {
         let loot_counts = match player_count {
             1 => *ONE,
             2 => *TWO,
             3 => *THREE,
             4 => *FOUR,
-            _ => bail!(
-                "Invalid player count: {}\nPlease enter a number from 1 to 4.",
-                player_count
-            ),
+            _ => return Err(RnsError::InvalidPlayerCount(player_count)),
         };
         Ok(loot_counts.to_vec())
     }
 
-    pub fn loot_sum(player_count: usize) -> Result<usize, Error> {
+    pub fn loot_sum(player_count: usize) -> Result<usize, RnsError> {
         Ok(loot_counts(player_count)?.into_iter().sum())
     }
 
@@ -40,11 +37,12 @@ pub mod player_loot {
 }
 
 pub mod treasuresphere {
+    use crate::error::RnsError;
     use phf::{OrderedMap, OrderedSet};
     use phf_macros::{phf_ordered_map, phf_ordered_set};
     use std::fmt;
 
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Debug, PartialEq, Eq, Clone)]
     pub enum Colors {
         Normal, // Reminder that you can find Normal 3 times
         Opal,
@@ -58,8 +56,8 @@ pub mod treasuresphere {
     pub fn is_item_in_ts_pos(item: &usize, ts_i: &usize, ts_count: &usize) -> bool {
         let delta = ts_count - ts_i; // 1..=6
         match NOT_IN_LAST_SPHERES.get(&(*item as u32)) {
-            //if 2 (topaz charm), then as long as delta is 1 or 2, it returns false
-            Some(val) if val >= &delta => false,
+            //if 2 (topaz charm), then as long as delta exceeds, it returns true (it is present)
+            Some(val) if &delta <= val => false,
             Some(_) => true,
             None => true,
         }
@@ -78,16 +76,16 @@ pub mod treasuresphere {
             }
         }
 
-        /// Involves weighted indices, for use when generating treasurespheres
-        pub fn from_index(index: &usize) -> Self {
+        /// Vanilla weighted indices, for use when generating treasurespheres
+        pub fn from_index(index: &usize) -> Option<Self> {
             match index {
-                0..=2 => Colors::Normal,
-                3 => Colors::Opal,
-                4 => Colors::Sapphire,
-                5 => Colors::Ruby,
-                6 => Colors::Garnet,
-                7 => Colors::Emerald,
-                _ => panic!("Unexpected treasuresphere index: {}", index),
+                0 => Some(Colors::Normal),
+                1 => Some(Colors::Opal),
+                2 => Some(Colors::Sapphire),
+                3 => Some(Colors::Ruby),
+                4 => Some(Colors::Garnet),
+                5 => Some(Colors::Emerald),
+                _ => return None,
             }
         }
     }
