@@ -28,10 +28,9 @@ struct Args {
     /// Use a positive interger (u64) seed for RNG (non-compliant)
     #[arg(short, long)]
     seed: Option<u64>,
-
-    /// Use indices instead of item names (it_[NAME])
-    #[arg(short, long, action)]
-    indices_for_items: bool,
+    // /// Use indices instead of item names (it_[NAME])
+    // #[arg(short, long, action)]
+    // indices_for_items: bool,
     // /// Use no headers
     // #[arg(short, long, action)]
     // no_headers: bool,
