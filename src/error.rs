@@ -26,6 +26,11 @@ pub enum RnsError {
     )]
     InvalidTreasuresphereCountIndex(usize),
 
+    // Writer-based errors including unmatched number of fields
+    // between the use of field_wtr_headers() and field_wtr()
+    #[error(transparent)]
+    WriterError(#[from] crate::writer::Error),
+
     #[error(transparent)]
     Other(#[from] anyhow::Error), // source and Display delegate to anyhow::Error
 }

@@ -1,20 +1,20 @@
+use anyhow::{Error, Result};
 use clap::Parser;
 use rand::{self, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
 use rayon::prelude::*;
-use rns_loot_sim::{self, Colors, Writer};
-use rns_loot_sim::{Error, Result}; // Anyhow
+use rns_loot_sim::writer;
+use rns_loot_sim::{self, Colors};
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::PathBuf; // Anyhow
 
 /// Program that simulates a number of games in Rabbit & Steel and writes items found
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     /// Number of game runs (samples)
-    #[arg(short = 'n', long, default_value_t = 1, value_parser(clap::value_parser!(u64).range(1..=200000)))]
-    //200k
+    #[arg(short = 'n', long, default_value_t = 1, value_parser(clap::value_parser!(u64).range(1..=500000)))]
     run_count: u64,
 
     /// Player count
@@ -25,17 +25,18 @@ struct Args {
     #[arg(short, long)]
     output_file: Option<PathBuf>,
 
-    /// Use a positive interger (u64) seed for RNG (non-compliant)
+    /// Use a positive integer seed for RNG (non-compliant)
     #[arg(short, long)]
     seed: Option<u64>,
     // /// Use indices instead of item names (it_[NAME])
     // #[arg(short, long, action)]
     // indices_for_items: bool,
+
     // /// Use no headers
     // #[arg(short, long, action)]
     // no_headers: bool,
 
-    // /// Use relative headers (i.e. in 1p, exclude it_4_{3,4} and it_5_{3,4})
+    // /// Use relative headers (i.e. in 1p, exclude it_{2..=5}_{3..=4})
     // ///
     // /// Otherwise, default to absolute headers that make mixing mixed player
     // /// count data much easier
@@ -45,13 +46,13 @@ struct Args {
 
 fn main() -> Result<(), Error> {
     let args = Args::parse();
-    let game_count = args.run_count as usize;
-    let player_count = args.player_count as usize;
+    let player_count = args.player_count as usize; // Avoid recasting if on 32-bit
 
-    let mut wtr = Writer::from_writer(Vec::with_capacity(game_count));
-    rns_loot_sim::field_wtr_headers(&mut wtr, &false, &player_count)?;
+    let mut wtr = writer::Writer::from_writer(Vec::with_capacity(args.run_count as usize));
+    writer::field_wtr_headers(&mut wtr, &false, &player_count)?;
 
-    let data: Vec<(Vec<Colors>, Vec<usize>)> = (0..game_count)
+    // Deterministic
+    let data: Vec<(Vec<Colors>, Vec<usize>)> = (0..args.run_count as usize)
         .into_par_iter()
         .map(|i| {
             let mut seed = match args.seed {
@@ -66,7 +67,7 @@ fn main() -> Result<(), Error> {
         .collect();
 
     data.iter()
-        .for_each(|(t, i)| rns_loot_sim::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
+        .for_each(|(t, i)| writer::field_wtr(&mut wtr, t, i, &false, &player_count).unwrap());
 
     if let Some(path) = args.output_file {
         let mut file = File::create(path)?;
