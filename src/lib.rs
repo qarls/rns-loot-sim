@@ -6,6 +6,7 @@ use error::RnsError;
 pub use loot::treasuresphere::{self, Colors}; // The treasuresphere types, i.e normal{1,2,3}, ruby, garnet
 use rand::{self, seq::SliceRandom};
 pub use rand_chacha::ChaCha8Rng as Rng;
+use std::ops::ControlFlow;
 
 /// Generates a set of 6 random treasurespheres per game
 ///
@@ -41,27 +42,31 @@ pub use rand_chacha::ChaCha8Rng as Rng;
 /// ```
 pub fn generate_ts(mut seed: &mut Rng) -> Result<Vec<Colors>, RnsError> {
     let ts_weights = [3, 1, 1, 1, 1]; //NOSRGE; for modding
-    let mut ts_all: Vec<Colors> = Vec::new();
-    let _: Result<(), RnsError> = ts_weights
-        .iter()
-        .enumerate()
-        .map(|(i, w)| {
-            let ts_i = Colors::from_index(&i);
-            if let Some(val) = ts_i {
-                for _ in 0..*w {
-                    ts_all.push(val.clone());
-                }
-                Ok(())
-            } else {
-                Err(RnsError::InvalidTreasuresphereIndex(i))
+    let mut ts_all: Vec<Colors> = Vec::new(); // contains colors and duplicates of normal
+
+    // Push pool of colors into ts_all vector based on weights
+    let iter_cf = ts_weights.iter().enumerate().try_for_each(|(i, w)| {
+        for _ in 0..*w {
+            let color = Colors::try_from(i);
+            match color {
+                Ok(val) => ts_all.push(val),
+                Err(error) => return ControlFlow::Break(error),
             }
-        })
-        .collect();
-    let ts: Vec<Colors> = ts_all
-        .partial_shuffle(&mut seed, *loot::TS_GAME_COUNT)
-        .0
-        .to_vec();
-    Ok(ts)
+        }
+        return ControlFlow::Continue(());
+    });
+
+    // Way to return error from for loop
+    if let ControlFlow::Break(error) = iter_cf {
+        return Err(error);
+    }
+    {
+        let ts: Vec<Colors> = ts_all
+            .partial_shuffle(&mut seed, *loot::TS_GAME_COUNT)
+            .0
+            .to_vec(); // Then we roll our colours
+        Ok(ts)
+    }
 }
 
 /// Generates a set of random items per game

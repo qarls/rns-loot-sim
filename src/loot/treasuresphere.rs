@@ -1,3 +1,4 @@
+use crate::error::RnsError;
 use phf::{OrderedMap, OrderedSet};
 use phf_macros::{phf_ordered_map, phf_ordered_set};
 use std::fmt;
@@ -35,17 +36,21 @@ impl Colors {
             Colors::Emerald => IS_EMERALD.iter().copied().collect(),
         }
     }
+}
 
-    /// Vanilla weighted indices, for use when generating treasurespheres
-    pub fn from_index(index: &usize) -> Option<Self> {
-        match index {
-            0 => Some(Colors::Normal),
-            1 => Some(Colors::Opal),
-            2 => Some(Colors::Sapphire),
-            3 => Some(Colors::Ruby),
-            4 => Some(Colors::Garnet),
-            5 => Some(Colors::Emerald),
-            _ => return None,
+/// For indexing a Color enum variant
+impl TryFrom<usize> for Colors {
+    type Error = RnsError;
+
+    fn try_from(val: usize) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Colors::Normal),
+            1 => Ok(Colors::Opal),
+            2 => Ok(Colors::Sapphire),
+            3 => Ok(Colors::Ruby),
+            4 => Ok(Colors::Garnet),
+            5 => Ok(Colors::Emerald),
+            _ => return Err(RnsError::InvalidTreasuresphereIndex(val)),
         }
     }
 }
