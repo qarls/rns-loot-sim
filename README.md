@@ -1,4 +1,12 @@
 # R&S Loot Generator Simulator CLI (CSV)
+
+## Disclaimer
+**The seed generation used in this crate is unfaithful to the game.**
+This specific implementation may generate combinations that aren't possible.
+
+For a seed-faithful Rust implementation, see [Rabbit & Steel Seed Predictor by babit56](https://github.com/babit56/rns-seed-predictor/tree/main).
+
+## Summary
 Small hobby project to practice coding skills and work with libraries.
 
 The program (on my specs) now creates a 100,000 entries in 1.446s.
@@ -22,6 +30,8 @@ to do if I rework this code again:
 ## Description
 Multithreading CLI program that prints or generates a `.csv` file simulating
 the loot you'd find over a number of runs for the game *Rabbit and Steel*.
+
+Items retrieved from a treasuresphere are ordered by their internal indices.
 
 Currently, there's a coded limit of 200,000 entries (85MB).
 ```
