@@ -37,7 +37,6 @@ pub mod player_loot {
 }
 
 pub mod treasuresphere {
-    use crate::error::RnsError;
     use phf::{OrderedMap, OrderedSet};
     use phf_macros::{phf_ordered_map, phf_ordered_set};
     use std::fmt;
