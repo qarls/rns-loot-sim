@@ -1,5 +1,6 @@
 //! Game constants, hashmaps and helper functions associated with them.
 pub mod players;
+pub mod tables;
 pub mod treasuresphere;
 
 /// Treasuresphere Count per game

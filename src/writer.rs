@@ -4,7 +4,7 @@
 //! to compute the same number of fields. Otherwise
 //! csv::Writer will throw a fit.
 use crate::error::RnsError;
-use crate::loot::{self, treasuresphere};
+use crate::loot::{self, tables, treasuresphere};
 pub use csv::Error; // For writer errors
 pub use csv::Writer;
 
@@ -80,7 +80,7 @@ pub fn field_wtr(
                         .get(loot_index)
                         .expect("Item index exceeded bounds of loot in field_wtr().");
                     loot_index += 1;
-                    treasuresphere::ITEM_NAMES
+                    tables::ITEM_NAMES
                         .index(it)
                         .expect("Item not found in index for ITEM_NAMES in field_wtr().")
                 } else {
