@@ -64,7 +64,7 @@ pub fn generate_ts(mut seed: &mut Rng) -> Result<Vec<Colors>, RnsError> {
                 Err(error) => return ControlFlow::Break(error),
             }
         }
-        return ControlFlow::Continue(());
+        ControlFlow::Continue(())
     });
 
     // Way to return error from for loop
@@ -98,7 +98,7 @@ pub fn generate_it(
     player_count: &usize,
 ) -> Result<Vec<usize>, RnsError> {
     let loot_counts = loot::players::loot_counts(*player_count)?; // n loot to roll every ts
-    let loot_sum = loot::players::loot_sum(&player_count)?; // sum of loot rolled in game
+    let loot_sum = loot::players::loot_sum(player_count)?; // sum of loot rolled in game
 
     let mut items_found: Vec<usize> = Vec::with_capacity(*loot_sum); //collection of loot in game
     for t in 0..*loot::TS_GAME_COUNT {

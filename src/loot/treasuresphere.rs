@@ -58,7 +58,7 @@ impl TryFrom<usize> for Colors {
             3 => Ok(Colors::Ruby),
             4 => Ok(Colors::Garnet),
             5 => Ok(Colors::Emerald),
-            _ => return Err(RnsError::InvalidTreasuresphereIndex(val)),
+            _ => Err(RnsError::InvalidTreasuresphereIndex(val)),
         }
     }
 }

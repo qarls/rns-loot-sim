@@ -25,6 +25,7 @@ pub static IT_COUNT: &usize = &200usize;
 /// # Max items found per Treasuresphere
 ///
 /// - 5 items found per Treasuresphere.
+///
 /// This variable is player-agnostic, consider passing a
 /// [usize] to [players::loot_counts] or [players::loot_sum].
 pub static IT_TS_GAME_COUNT_MAX: &usize = &5usize;
