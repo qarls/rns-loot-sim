@@ -1,13 +1,16 @@
+//! PHF-based ordered maps and sets for looking up items or iterating over.
 use phf::OrderedMap;
 use phf::OrderedSet;
 use phf_macros::{phf_ordered_map, phf_ordered_set};
 
+/// Items in Opal Treasuresphere.
 // 0..=23 | 120..=151 => true,
 pub static ITEM_OPAL: OrderedSet<usize> = phf_ordered_set! {
     0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23,
     120 | 121 | 122 | 123 | 124 | 125 | 126 | 127 | 128 | 129 | 130 | 131 | 132 | 133 | 134 | 135 | 136 | 137 | 138 | 139 | 140 | 141 | 142 | 143 | 144 | 145 | 146 | 147 | 148 | 149 | 150 | 151,
 };
 
+/// Items in Sapphire Treasuresphere.
 // 24..=47 | 120..=127 | 152..=175 => true,
 pub static ITEM_SAPPHIRE: OrderedSet<usize> = phf_ordered_set! {
     24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47,
@@ -15,6 +18,7 @@ pub static ITEM_SAPPHIRE: OrderedSet<usize> = phf_ordered_set! {
     152 | 153 | 154 | 155 | 156 | 157 | 158 | 159 | 160 | 161 | 162 | 163 | 164 | 165 | 166 | 167 | 168 | 169 | 170 | 171 | 172 | 173 | 174 | 175,
 };
 
+/// Items in Ruby Treasuresphere.
 // 48..=71 | 128..=135 | 152..=159 | 176..=191,
 pub static ITEM_RUBY: OrderedSet<usize> = phf_ordered_set! {
     48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 | 71,
@@ -23,6 +27,7 @@ pub static ITEM_RUBY: OrderedSet<usize> = phf_ordered_set! {
     176 | 177 | 178 | 179 | 180 | 181 | 182 | 183 | 184 | 185 | 186 | 187 | 188 | 189 | 190 | 191,
 };
 
+/// Items in Garnet Treasuresphere.
 // 72..=95 | 136..=143 | 160..=167 | 176..=183 | 192..=199,
 pub static ITEM_GARNET: OrderedSet<usize> = phf_ordered_set! {
     72 | 73 | 74 | 75 | 76 | 77 | 78 | 79 | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 | 90 | 91 | 92 | 93 | 94 | 95,
@@ -32,6 +37,7 @@ pub static ITEM_GARNET: OrderedSet<usize> = phf_ordered_set! {
     192 | 193 | 194 | 195 | 196 | 197 | 198 | 199,
 };
 
+/// Items in Emerald Treasuresphere.
 // 96..=119 | 144..=151 | 168..=175 | 184..=199,
 pub static ITEM_EMERALD: OrderedSet<usize> = phf_ordered_set! {
     96 | 97 | 98 | 99 | 100 | 101 | 102 | 103 | 104 | 105 | 106 | 107 | 108 | 109 | 110 | 111 | 112 | 113 | 114 | 115 | 116 | 117 | 118 | 119,
@@ -40,11 +46,32 @@ pub static ITEM_EMERALD: OrderedSet<usize> = phf_ordered_set! {
     184 | 185 | 186 | 187 | 188 | 189 | 190 | 191 | 192 | 193 | 194 | 195 | 196 | 197 | 198 | 199,
 };
 
+/// The number of final Treasurespheres included items are skipped over.
+///
+/// Used in the crate::generate_it() function to skip certain items.
+///
+/// # Items included
+///
+/// ## 2
+/// - Topaz Charm
+///
+/// ## 1
+/// - Silver Coin
+/// - Butterfly Ocarina
+/// - Blue Rose
 pub static NOT_IN_LAST_TS: OrderedMap<u32, usize> = phf_ordered_map! {
     70 => 2, // topaz charm
     93 | 96 | 100 => 1,// silver coin, butterfly ocarina and blue rose
 };
 
+/// Item names.
+///
+/// As of Rabbit & Steel 1.4.5,
+/// there are 200 items from 25 item sets
+/// with 8 items each per set.
+///
+/// These items are ordered and named based
+/// off of the game files, i.e. in 'Rabbit and Steel/Data/Names_Item.csv'
 pub static ITEM_NAMES: OrderedSet<&'static str> = phf_ordered_set! {
     // ===Arcane set opal@[0..=7]===
     "it_raven_grimoire",

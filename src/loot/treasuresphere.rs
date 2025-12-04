@@ -2,13 +2,21 @@ use super::tables;
 use crate::error::RnsError;
 use std::fmt;
 
+/// # The Treasuresphere variants
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Colors {
+    /// - White
+    /// - Up to 3 in each game
     Normal, // Reminder that you can find Normal 3 times
+    /// - Purple/violet
     Opal,
+    /// - Blue
     Sapphire,
+    /// - Red
     Ruby,
+    /// - Yellow
     Garnet,
+    /// - Green
     Emerald,
 }
 
@@ -24,6 +32,7 @@ pub fn is_item_in_ts_pos(item: &usize, ts_i: &usize, ts_count: &usize) -> bool {
 }
 
 impl Colors {
+    /// Returns the contents of the Treasuresphere variant
     pub fn items_in_ts(&self) -> Vec<usize> {
         //This needs to be modifiable
         match &self {

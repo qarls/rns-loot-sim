@@ -3,8 +3,8 @@ use clap::Parser;
 use rand::{self, SeedableRng};
 use rand_chacha::ChaCha8Rng; // Useful for deterministic RNG
 use rayon::prelude::*;
+use rns_loot_sim::loot::treasuresphere::Colors;
 use rns_loot_sim::writer;
-use rns_loot_sim::{self, Colors};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf; // Anyhow

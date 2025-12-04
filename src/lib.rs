@@ -3,17 +3,28 @@ pub mod loot;
 pub mod writer;
 use anyhow::Result;
 use error::RnsError;
-pub use loot::treasuresphere::{self, Colors}; // The treasuresphere types, i.e normal{1,2,3}, ruby, garnet
+use loot::treasuresphere::Colors; // The treasuresphere types, i.e normal{1,2,3}, ruby, garnet
 use rand::{self, seq::SliceRandom};
 pub use rand_chacha::ChaCha8Rng as Rng;
 use std::ops::ControlFlow;
 
-/// Generates a set of 6 random treasurespheres per game
+/// # Treasuresphere Generate per Game
 ///
-/// # Examples
+/// This should always roll 6 Treasurespheres of [Colors] variants.
+///
+/// ## Item weights
+///
+/// - 3: Normal
+/// - 1: Opal, Sapphire, Ruby, Garnet, Emerald
+///
+/// ## Examples
+///
+/// This is test that checks no bounds were exceeded,
+/// either by more [Colors] variants than in the pool
+/// or the Vector returned from the function.
 ///
 /// ```
-/// use rns_loot_sim::Colors;
+/// use rns_loot_sim::loot::treasuresphere::Colors;
 /// use rns_loot_sim::Rng;
 /// use rand::SeedableRng;
 ///
@@ -69,12 +80,18 @@ pub fn generate_ts(mut seed: &mut Rng) -> Result<Vec<Colors>, RnsError> {
     }
 }
 
-/// Generates a set of random items per game
+/// # Item Generate per Game
 ///
-/// The Result-Vec returned are string values of item names
+/// The Result-Vec returned are indices values ([usize]) of item names
 /// and are deemed "relative", i.e.:
-/// - in 1P, items 4_2 [18] and 5_0 [19] will sit next to each other, where items 4_{3,4} are not evaulated
-/// - in 4p, items 4_4 [24] and 5_0 [25] next to each other
+/// - in 1P, items 4_2 \[18\] and 5_0 \[19\] will sit next to each other, in vec it_{3,4} are not evaulated
+/// - in 4p, items 4_4 \[24\] and 5_0 \[25\] next to each other
+///
+/// ## Notes
+///
+/// This function assumes you pass a &\[[Colors]\] of length 6.
+///
+/// There is a "QoL" feature that orders items rolled within each found TS.
 pub fn generate_it(
     ts: &[Colors],
     mut seed: &mut Rng,
@@ -124,7 +141,7 @@ pub fn generate_it(
             items_found_t.sort_unstable();
             items_found.append(&mut items_found_t);
         } else {
-            return Err(RnsError::InvalidTreasuresphereCountIndex(t));
+            return Err(RnsError::InvalidTreasuresphereIndex(t));
         }
     }
 
