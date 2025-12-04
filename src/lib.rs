@@ -75,10 +75,10 @@ pub fn generate_it(
     mut seed: &mut Rng,
     player_count: &usize,
 ) -> Result<Vec<usize>, RnsError> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count)?; // n loot to roll every ts
-    let loot_sum = loot::player_loot::loot_sum(*player_count)?; // sum of loot rolled in game
+    let loot_counts = loot::players::loot_counts(*player_count)?; // n loot to roll every ts
+    let loot_sum = loot::players::loot_sum(&player_count)?; // sum of loot rolled in game
 
-    let mut items_found: Vec<usize> = Vec::with_capacity(loot_sum); //collection of loot in game
+    let mut items_found: Vec<usize> = Vec::with_capacity(*loot_sum); //collection of loot in game
     for t in 0..*loot::TS_GAME_COUNT {
         if let Some(ts_t) = ts.get(t) {
             let loot_count = loot_counts

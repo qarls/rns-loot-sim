@@ -55,7 +55,7 @@ pub fn field_wtr(
     _relative: &bool,
     player_count: &usize,
 ) -> Result<(), RnsError> {
-    let loot_counts = loot::player_loot::loot_counts(*player_count)?;
+    let loot_counts = loot::players::loot_counts(*player_count)?;
 
     if *_relative {
         todo!("Relative flag not priority.");

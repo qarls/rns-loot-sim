@@ -1,4 +1,5 @@
 //! Game constants, hashmaps and helper functions associated with them.
+pub mod players;
 
 /// Treasuresphere Count per game
 pub static TS_GAME_COUNT: &usize = &6usize;
@@ -13,31 +14,6 @@ pub static IT_COUNT: &usize = &200usize;
 
 /// Max items found per Treasuresphere
 pub static IT_TS_GAME_COUNT_MAX: &usize = &5usize;
-
-/// Module to call constants based on player count
-pub mod player_loot {
-    use crate::error::RnsError;
-
-    pub fn loot_counts(player_count: usize) -> Result<Vec<usize>, RnsError> {
-        let loot_counts = match player_count {
-            1 => *ONE,
-            2 => *TWO,
-            3 => *THREE,
-            4 => *FOUR,
-            _ => return Err(RnsError::InvalidPlayerCount(player_count)),
-        };
-        Ok(loot_counts.to_vec())
-    }
-
-    pub fn loot_sum(player_count: usize) -> Result<usize, RnsError> {
-        Ok(loot_counts(player_count)?.into_iter().sum())
-    }
-
-    static ONE: &[usize; 6] = &[5, 5, 3, 3, 3, 3];
-    static TWO: &[usize; 6] = &[5, 5, 4, 4, 4, 4];
-    static THREE: &[usize; 6] = &[5, 5, 4, 4, 4, 4];
-    static FOUR: &[usize; 6] = &[5, 5, 5, 5, 5, 5];
-}
 
 pub mod treasuresphere {
     use phf::{OrderedMap, OrderedSet};
